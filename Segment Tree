@@ -1,0 +1,206 @@
+/*
+ * Created by himanshu gupta
+ *
+ * */
+
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class Node;
+class SegmentTree;
+
+class Node
+{
+    long long int data;
+    long long int leftChild;
+    long long int rightChild;
+    long long int leftLimit;
+    long long int rightLimit;
+public:
+    Node(long long int ele)
+    {
+        data = ele;
+    }
+    Node()
+    {
+        data = 0;
+        
+    }
+    friend class SegmentTree;
+};
+
+class SegmentTree
+{
+    Node * Tree;
+    long long int Size;
+public:
+    SegmentTree()
+    {
+        Tree = NULL;
+        Size = 0;
+    }
+    void ConstructSegmentTree(vector<long long int> &V)
+    {
+        unsigned long long int N = V.size();
+        long long int S  = (long long int)(ceil(log2(N)));
+        S = (2 * (long long int)(pow(2, S))) - 1;
+        Tree = new Node[S];
+        Size = S;
+        long long int F = ConstructSegmentTreeUtil(0, V.size() - 1, 0 , V);
+        return;
+    }
+    
+    long long int ConstructSegmentTreeUtil(long long int start, long long int end, long long TreeIndex, vector<long long int> &V)
+    {
+       // cout<<"Hello"<<endl;
+        if(TreeIndex >= Size)
+            return 0;
+        if(end < start)
+            return 0;
+        if(start == end)
+        {
+            Tree[TreeIndex].data = V[start];
+            Tree[TreeIndex].leftChild = -1;
+            Tree[TreeIndex].rightChild = -1;
+            Tree[TreeIndex].leftLimit = Tree[TreeIndex].rightLimit = start;
+            return Tree[TreeIndex].data;
+        }
+
+        long long int mid = (start + end)/2;
+        long long int LeftSum = ConstructSegmentTreeUtil(start, mid, 2 * TreeIndex + 1, V);
+        long long int RightSum = ConstructSegmentTreeUtil(mid + 1, end, 2 * TreeIndex + 2, V);
+        Tree[TreeIndex].data = LeftSum + RightSum;
+        Tree[TreeIndex].rightLimit = end;
+        Tree[TreeIndex].leftLimit = start;
+        Tree[TreeIndex].rightChild = 2 * TreeIndex + 2;
+        Tree[TreeIndex].leftChild = 2 * TreeIndex + 1;
+        return  Tree[TreeIndex].data;
+    }
+
+    void Print()
+    {
+        cout<<endl<<"Printing Segement Tree"<<endl;
+        for (long long int i = 0; i < Size ; ++i)
+        {
+
+            cout<<Tree[i].data<<" ";
+        }
+        cout<<endl;
+
+    }
+
+    long long int GetQuery(long long int startIndex, long long int EndIndex)
+    {
+        return GetQueryUtil(0, startIndex, EndIndex);
+
+    }
+    long long int GetQueryUtil(long long int TreeIndex, long long int start, long long int end)
+    {
+        cout<<"Start is "<<start<<" and end is "<<end<<endl;
+        if(TreeIndex >= Size)
+            return 0;
+
+        long long int left = Tree[TreeIndex].leftLimit;
+        long long int right = Tree[TreeIndex].rightLimit;
+
+        if( left>= start && right <= end )
+            return Tree[TreeIndex].data;
+
+        if(right < start || left > end)
+            return 0;
+
+
+        long long int mid = (start + end) / 2;
+        return (GetQueryUtil(2 * TreeIndex + 1, start, end)) + (GetQueryUtil(2 * TreeIndex + 2,start, end));
+
+    }
+
+    void UpdateQuery(long long int Index, long long int new_value)
+    {
+        UpdateQueryUtil(Index, new_value, 0);
+        return;
+    }
+
+    void UpdateQueryUtil(long long int Index, long long int new_value, long long int TreeIndex)
+    {
+        if(TreeIndex >= Size)
+            return;
+        if(Tree[TreeIndex].leftLimit > Index || Tree[TreeIndex].rightLimit < Index)
+            return;
+
+        if(Tree[TreeIndex].leftLimit == Tree[TreeIndex].rightLimit && Tree[TreeIndex].rightLimit == Index)
+        {
+            Tree[TreeIndex].data = new_value;
+            return;
+        }
+
+        UpdateQueryUtil(Index, new_value, 2 * TreeIndex + 1);
+        UpdateQueryUtil(Index, new_value, 2 * TreeIndex + 2);
+        Tree[TreeIndex].data = Tree[Tree[TreeIndex].leftChild].data + Tree[Tree[TreeIndex].rightChild].data;
+        return;
+    }
+
+    long long int size()
+    {
+        return Size;
+    }
+
+    ~SegmentTree()
+    {
+        delete Tree;
+    }
+
+
+};
+
+int * LeastPrimeDivisor;
+
+void LeastPrime()
+{
+    LeastPrimeDivisor = new int[1000009];
+    LeastPrimeDivisor[0] = 0;
+    LeastPrimeDivisor[1] = 1;
+    LeastPrimeDivisor[2] = 2;
+    for (int i = 3; i < 1000009 ; ++i)
+    {
+        LeastPrimeDivisor[i] = i;
+        if(i % 2 == 0)
+            LeastPrimeDivisor[i] = 2;
+    }
+
+    int N = sqrt(1000009) + 2;
+    for (int i = 3; i <=N ; ++i)
+    {
+        if(LeastPrimeDivisor[i] == i )
+        {
+            for (int j = 2 * i; j <=1000009 ; j = j + i) {
+                if(LeastPrimeDivisor[j] == j)
+                    LeastPrimeDivisor[j] = i;
+            }
+        }
+
+    }
+
+    /*for (int i = 0; i < 1000 ; ++i) {
+        cout<<LeastPrimeDivisor[i]<<" ";
+    }*/
+
+}
+
+
+int main()
+{
+    LeastPrime();
+    int Test;
+    scanf("%d", &Test);
+
+    for (int i = 0; i < Test ; ++i)
+    {
+        int N, M;
+        
+    }
+
+
+    return 0;
+}
